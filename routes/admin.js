@@ -175,6 +175,64 @@ router.get('/postagens',(req,res)=> {
  })
 
 
+ router.get('/postagens/edit/:id',(req,res)=> {
+
+    Postagem.findOne({_id:req.params.id}).lean().then((postagem)=>{
+
+        Categoria.find().lean().then((categorias)=>{
+            res.render("admin/editpostagens",{postagem: postagem, categorias: categorias})
+
+        }).catch((err)=> {
+            req.flash("error_msg","Erro ao listar categoria")
+            res.redirect("/admin/postagens")
+        })    
+        
+    
+}).catch((err)=> {
+    req.flash("error_msg","Esta postagem não existe")
+    res.redirect("/admin/postagens")
+})        
+
+})
+
+ router.post('/postagens/edit', (req,res)=>{
+
+    Postagem.findOne({_id: req.body.id}).then((postagem)=>{
+        
+        postagem.titulo = req.body.titulo
+        postagem.slug = req.body.slug
+        postagem.descricao = req.body.descricao
+        postagem.conteudo = req.body.conteudo
+
+        postagem.save().then(()=>{
+            req.flash("success_msg","Postagem editada com sucesso")
+            res.redirect("/admin/postagens")
+        }).catch((err)=>{
+            req.flash("erro_msg","Erro interno ")
+            res.redirect("/admin/postagens")
+        })
+
+
+    }).catch((err)=>{
+        req.flash("error_msg","Erro ao Salvar a edição!")
+        res.redirect("/admin/postagens")
+    })
+
+ })
+
+ router.get('/postagens/deletar/:id',(req,res)=>{
+    Postagem.remove({_id: req.params.id}).then(()=>{
+        req.flash("success_msg","Postagem deletada com sucesso!")
+        res.redirect("/admin/postagens")
+
+    }).catch((err)=>{
+        req.flash("error_msg","Erro deletar postagem!")
+        res.redirect("/admin/postagens")
+    })
+
+ })
+
+
 router.get('/testeMK',(req,res)=> {
 
    res.render('admin/teste')      
@@ -186,10 +244,6 @@ router.post('/teste/inputs',(req,res)=> {
     res.send("Bairro recebido foi: " + req.body.bairroBrenda +' e a cidade foi : ' + req.body.cidadeBrenda)     
  
  })
-
-
-
-
 
 
 module.exports = router
