@@ -10,7 +10,8 @@
     const flash = require("connect-flash")
     require("./models/Postagem")
     const Postagem = mongoose.model("postagens")
-
+    require("./models/Categoria")
+    const Categoria = mongoose.model("categorias")
 
 //configuraçoes
     //Sessão
@@ -68,7 +69,57 @@
     })
 
     app.get('/postagem/:slug',(req,res)=>{
-        res.send("ERRO 404!")
+        Postagem.findOne({slug: req.params.slug}).lean().then((postagem)=>{
+            if(postagem){
+                    res.render("postagem/index", {postagem: postagem})
+            }else{
+                req.flash("error_msg","Essa postagem não existe!")
+                res.redirect("/")    
+            }
+
+        }).catch((err)=>{
+            req.flash("error_msg","Erro Interno!")
+            res.redirect("/")
+        })
+    })
+
+    app.get("/categorias", (req,res)=>{
+        Categoria.find().lean().then((categorias)=>{
+            res.render("categorias/index",{categorias: categorias})
+
+
+        }).catch((err)=>{
+            req.flash("error_msg","Erro Interno ao listar categorias!")
+            res.redirect("/")
+        })
+
+    })
+
+    app.get("/categorias/:slug", (req,res)=>{
+        Categoria.findOne({slug: req.params.slug}).lean().then((categoria)=>{
+
+            if(categoria){
+
+                Postagem.find({categoria: categoria._id}).lean().then((postagens) =>{
+                    
+                    res.render("categorias/postagens", {postagens: postagens, categoria: categoria})
+
+                }).catch((err)=>{
+                    req.flash("error_msg","Erro Interno ao listar posts!")
+                    res.redirect("/")
+                })
+
+            }else{
+                req.flash("error_msg", "Essa categoria não existe!")
+                res.redirect("/")
+            }
+            
+        }).catch((err)=>{
+            req.flash("error_msg","Erro Interno ao carregar a pagina!")
+            console.log(err)
+            res.redirect("/")
+        })
+
     })
 
     app.get('/404',(req,res)=>{
