@@ -1,7 +1,13 @@
 
 
 <h4>Login: </h4>
+        {{#if error}}
+            <div class="alert alert-danger">{{this.error}}</div>
+         {{else}}
+
+        {{/if}}
 <div class="card mt-4">
+
     <div class="card-body">
 
         <form action="/usuarios/login" method="POST">
