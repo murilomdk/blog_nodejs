@@ -15,6 +15,7 @@
     const usuarios = require("./routes/usuario")
     const passport = require('passport')
     require("./config/auth")(passport)
+    const db = require("./config/db")
 
 //configuraçoes
     //Sessão
@@ -49,7 +50,7 @@
 
     //Mongoose
         mongoose.Promise = global.Promise;
-        mongoose.connect("mongodb://localhost/blogapp", {useNewUrlParser: true, useUnifiedTopology: true}).then(() =>{
+        mongoose.connect(db.mongoURI, {useNewUrlParser: true, useUnifiedTopology: true}).then(() =>{
             console.log("Conectado ao MongoDB!")
         }).catch((err) =>{
             console.log("Erro ao conectar: " + err) 
@@ -144,7 +145,7 @@
 
 //outros
 
-const PORT = 8081
+const PORT =  process.env.PORT || 8081
     app.listen(PORT,() =>{
         console.log("Server Rodando!")
     })
